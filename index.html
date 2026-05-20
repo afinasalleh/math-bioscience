@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus in Animal Husbandry: Broiler Growth Rates</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+    <header class="bg-gradient-to-r from-emerald-800 to-teal-700 text-white py-8 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto">
+            <span class="text-xs font-bold uppercase tracking-wider bg-emerald-950/40 px-3 py-1 rounded-full">SFH: Animal Husbandry Technology Application</span>
+            <h1 class="text-3xl font-extrabold mt-2">Optimizing Malaysian Poultry Production via Calculus</h1>
+            <p class="text-emerald-100 mt-1 text-sm sm:text-base">Using derivatives $f'(x)$ to determine peak daily weight gain in Broiler Chickens (Ross 308).</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-1 space-y-6">
+            
+            <div class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100">
+                <h2 class="text-xl font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                    <span>🐔</span> The Bioscience Problem
+                </h2>
+                <p class="text-sm leading-relaxed text-slate-600 mb-3">
+                    In Malaysian poultry management, feed costs constitute up to <strong>70% of total production costs</strong>. To maximize Feed Conversion Efficiency (FCE), farm managers must know exactly when a broiler's growth rate peaks and when it begins to plateau.
+                </p>
+                <p class="text-sm leading-relaxed text-slate-600">
+                    Harvesting too early means missing out on rapid growth phase potential; harvesting too late means wasting expensive feed on an animal whose growth rate is slowing down.
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                    <strong>Data Source Reference:</strong> Baseline parameters adapted from the <em>Ross 308 Broiler Performance Objectives (Aviation/Aviagen)</em> and localized Malaysian climate trials (MARDI).
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100">
+                <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <span>🧮</span> The Mathematical Model
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">
+                    Animal growth typically follows a sigmoidal (S-shaped) <strong>Gompertz Function</strong>.
+                </p>
+                
+                <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Growth Function $f(x)$</span>
+                        <div class="text-sm font-mono font-bold text-emerald-700 mt-1">
+                            f(x) = W_max * e^(-b * e^(-k * x))
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Yields cumulative weight (grams) at day $x$.</p>
+                    </div>
+                    
+                    <div class="border-t border-slate-200 pt-3">
+                        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">The Derivative $f'(x)$ (Rate of Change)</span>
+                        <div class="text-sm font-mono font-bold text-indigo-700 mt-1">
+                            f'(x) = f(x) * b * k * e^(-k * x)
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Calculates the precise growth velocity (grams/day) at day $x$.</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-[11px] text-slate-500 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <strong>Constants Used (Ross 308 standard):</strong><br>
+                    • $W_{max}$ (Asymptotic weight) = 3500g<br>
+                    • $b$ (Biological constant) = 4.45<br>
+                    • $k$ (Growth rate modifier) = 0.072
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            
+            <div class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Growth Curve vs Daily Velocity</h2>
+                        <p class="text-xs text-slate-500">Click anywhere on the chart line to calculate derivative at that day.</p>
+                    </div>
+                    <span class="text-xs bg-slate-100 px-2.5 py-1 rounded-md font-medium text-slate-600">Cycle: 1 to 45 Days</span>
+                </div>
+                
+                <div class="relative h-[350px] w-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <div id="interactivePanel" class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl transition-all duration-300 transform">
+                <div id="promptMessage" class="text-center py-6 block">
+                    <p class="text-indigo-200 text-sm">💡 Click on any point along the lines above to run derivative calculus on that growth day.</p>
+                </div>
+                
+                <div id="calcResult" class="hidden space-y-4">
+                    <div class="flex flex-wrap justify-between items-center border-b border-indigo-800 pb-3">
+                        <h3 class="text-lg font-bold text-emerald-400">Calculus Live-Analysis: Day <span id="resDay" class="text-white text-xl">X</span></h3>
+                        <span class="text-xs bg-indigo-800 px-2.5 py-1 rounded-full text-indigo-200">f'(x) Evaluation</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-indigo-950/50 p-4 rounded-xl border border-indigo-800/60">
+                            <span class="text-xs text-indigo-300 block">Cumulative Weight $f(x)$</span>
+                            <div class="text-2xl font-black text-white mt-1"><span id="resWeight">0</span> <span class="text-xs font-normal text-slate-400">grams</span></div>
+                        </div>
+                        <div class="bg-indigo-950/50 p-4 rounded-xl border border-indigo-800/60">
+                            <span class="text-xs text-indigo-300 block">Instantaneous Growth Rate $f'(x)$</span>
+                            <div class="text-2xl font-black text-amber-400 mt-1"><span id="resRate">0</span> <span class="text-xs font-normal text-slate-400">grams / day</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                        <span class="text-xs font-bold uppercase text-emerald-400 tracking-wider block mb-1">Husbandry Technician Interpretation:</span>
+                        <p id="resInterpretation" class="text-sm text-slate-200 leading-relaxed">
+                            Select a point to display tactical farm advice.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="text-center text-xs text-slate-400 py-8 border-t border-slate-200 mt-12">
+        Designed for SFH: Animal Husbandry Technology Study Modules • Built using Chart.js & Tailwind
+    </footer>
+
+    <script>
+        // Gompertz constants for Ross 308 Broiler under typical Malaysian closed-house ventilation system
+        const W_max = 3500; 
+        const b = 4.45;
+        const k = 0.072;
+
+        // Generate Data arrays for 45 days
+        const labels = [];
+        const weightData = []; // f(x)
+        const rateData = [];   // f'(x)
+
+        for (let x = 1; x <= 45; x++) {
+            labels.push(x);
+            
+            // f(x) = W_max * e^(-b * e^(-k * x))
+            let fx = W_max * Math.exp(-b * Math.exp(-k * x));
+            weightData.push(Math.round(fx));
+
+            // f'(x) = f(x) * b * k * e^(-k * x)
+            let fPrimeX = fx * b * k * Math.exp(-k * x);
+            rateData.push(parseFloat(fPrimeX.toFixed(2)));
+        }
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Weight f(x) [Grams]',
+                        data: weightData,
+                        borderColor: '#10b981', // Emerald
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        borderWidth: 3,
+                        yAxisID: 'yWeight',
+                        tension: 0.2,
+                        fill: true
+                    },
+                    {
+                        label: "Growth Velocity f'(x) [Grams/Day]",
+                        data: rateData,
+                        borderColor: '#6366f1', // Indigo
+                        borderWidth: 2.5,
+                        borderDash: [5, 5],
+                        yAxisID: 'yRate',
+                        tension: 0.2,
+                        pointBackgroundColor: '#6366f1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 12, weight: 'bold' } }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Age of Broiler (Days)', font: { weight: 'bold' } }
+                    },
+                    yWeight: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Cumulative Weight (g)', font: { weight: 'bold' } },
+                        min: 0
+                    },
+                    yRate: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Daily Weight Gain Rate (g/day)', font: { weight: 'bold' } },
+                        grid: { drawOnChartArea: false },
+                        min: 0
+                    }
+                },
+                // Triggered when user clicks anywhere on the canvas
+                onClick: (e) => {
+                    const points = growthChart.getElementsAtEventForMode(e, 'index', { intersect: false }, true);
+                    if (points.length) {
+                        const index = points[0].index;
+                        const day = labels[index];
+                        const weight = weightData[index];
+                        const rate = rateData[index];
+                        
+                        updateAnalysisPanel(day, weight, rate);
+                    }
+                }
+            }
+        });
+
+        // Function to update interaction panel text with biological interpretations
+        function updateAnalysisPanel(day, weight, rate) {
+            document.getElementById('promptMessage').classList.add('hidden');
+            document.getElementById('calcResult').classList.remove('hidden');
+            
+            document.getElementById('resDay').innerText = day;
+            document.getElementById('resWeight').innerText = weight;
+            document.getElementById('resRate').innerText = rate;
+
+            let interpretation = "";
+            
+            // Biological logic segmentation based on standard production timelines in Malaysia
+            if (day <= 14) {
+                interpretation = `This is the brooding phase. The derivative f'(x) is low (${rate}g/day), showing slow early physical mass gain. However, the bird is heavily building its internal organs, skeleton, and immune systems. Ambient temperature control inside your ventilation house is critical right now.`;
+            } else if (day > 14 && day <= 21) {
+                interpretation = `The accelerating growth phase. The derivative value is increasing day-by-day. The broiler is effectively converting feed into muscle. Ensure high-protein broiler starter feed profiles are pristine to support this surging velocity.`;
+            } else if (day > 21 && day <= 28) {
+                interpretation = `Approaching Point of Inflection! The bird's daily weight gain rate is nearing maximum capacity (${rate}g/day). Metabolic heat is very high. Ensure ventilation fans and evaporative cooling pads are operational to combat typical Malaysian heat stress!`;
+            } else if (day > 28 && day <= 35) {
+                interpretation = `This is the peak growth performance window (Point of Inflection occurred around Day 21-23). The derivative has hit its maximum plateau and is slightly beginning to bend downwards. This is usually the prime biological target window for localized Malaysian wet-market harvest weights (~2.1kg).`;
+            } else {
+                interpretation = `The growth velocity derivative f'(x) is significantly dropping down to ${rate}g/day. While total weight f(x) is still technically increasing (${weight}g), the efficiency rate is diminishing. Keeping birds past this timeline will drastically increase your Feed Conversion Ratio (FCR), hurting farm profit margins.`;
+            }
+
+            document.getElementById('resInterpretation').innerText = interpretation;
+            
+            // Highlight effect trigger
+            const panel = document.getElementById('interactivePanel');
+            panel.classList.add('scale-[1.01]');
+            setTimeout(() => panel.classList.remove('scale-[1.01]'), 200);
+        }
+    </script>
+</body>
+</html>
